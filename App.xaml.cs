@@ -9,4 +9,5 @@ namespace BatootGames;
 /// </summary>
 public partial class App : Application
 {
+    
 }

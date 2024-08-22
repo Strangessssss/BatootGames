@@ -6,10 +6,6 @@
              xmlns:services="clr-namespace:BatootGames.Services"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="850" Background="#1e173d">
-    <UserControl.Resources>  
-        <services:BoolToStringConverter x:Key="ValueConverter"/>
-            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
-    </UserControl.Resources> 
     <Grid ShowGridLines="False">
         <Grid.RowDefinitions>
             <RowDefinition Height="0.1*"/>
@@ -20,7 +16,6 @@
                 <TextBox Width="150" HorizontalAlignment="Left" Margin="10" Text="{Binding SearchRequest}"></TextBox>
                 <Button Width="50" Background="Indigo" Foreground="Azure" HorizontalAlignment="Left" BorderThickness="0" Command="{Binding SearchAndUpdateCommand}" VerticalAlignment="Center">Search</Button>
                 <Button Margin="150 0 0 0" Width="50" Background="Indigo" Foreground="Azure" HorizontalAlignment="Left" BorderThickness="0" Command="{Binding MyLibOnCommand}"  VerticalAlignment="Center" Content="{Binding MyLibText}"></Button>
-                
             </StackPanel>
         </Grid>
         <Grid Grid.Row="1">
@@ -39,11 +34,8 @@
                                         </Image.Source>
                                     </Image>
                                 </Label>
-                                <TextBlock Width="200" Text="{Binding Name}" Foreground="Azure"/>
-                                <Button Margin="0 0 0 0" Width="50"  Height="50" Visibility="{Binding Saved, Converter={StaticResource BoolToVis}}" Command="{Binding MinusCommand}" Content="-"/>
-                                <TextBlock Margin="40 22 0 0" Visibility="{Binding Saved, Converter={StaticResource BoolToVis}}" Text="{Binding Rating}" FontSize="20" Foreground="Azure" Height="50"/>
-                                <Button Margin="40 0 0 0" Width="50" Visibility="{Binding Saved, Converter={StaticResource BoolToVis}}" Height="50" Command="{Binding PlusCommand}" Content="+"/>
-                                <Button Margin="40 0 0 0" Width="50" Height="50" Command="{Binding AddCommand}" Content="{Binding Path=Saved, Converter={StaticResource ValueConverter}}"/>
+                                <TextBlock Width="370" Text="{Binding Name}" Foreground="Azure"/>
+                                <Button Margin="40 0 0 0" Width="80" Height="50" Command="{Binding AddCommand}" Content="Add/Delete"/>
                                 <Button Margin="40 0 0 0" Width="50" Height="50" Command="{Binding AboutCommand}" Content="info"/>
                             </StackPanel>
                         </DataTemplate>

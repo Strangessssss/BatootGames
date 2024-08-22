@@ -1,19 +1,10 @@
-﻿using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows;
+using BatootGames.Entities;
 using BatootGames.Messages;
 using BatootGames.Services;
 using BatootGames.ViewModels;
 using BatootGames.Views;
 using CommunityToolkit.Mvvm.Messaging;
-using ListView = System.Windows.Forms.ListView;
 
 namespace BatootGames;
 
@@ -22,22 +13,35 @@ namespace BatootGames;
 /// </summary>
 public partial class MainWindow : Window
 {
-    private ViewFactory _viewFactory = new ViewFactory();
+    private ViewFactory _viewFactory = new();
+    private User? _user;
+    private FrameworkElement? _currentView;
+    private GamesStoreView? _gamesStoreView;
     public MainWindow()
     {
         InitializeComponent();
-        MainContentControl.Content = _viewFactory.CreateView<GamesStoreView>(new GameStoreViewModel());
-        WeakReferenceMessenger.Default.Register<AboutGameView>(this, ShowViewModel);
+        MainContentControl.Content = _viewFactory.CreateView<UserLoginingView>(new UserLoginningViewModel());
         
+        WeakReferenceMessenger.Default.Register<User>(this, Login);
+        WeakReferenceMessenger.Default.Register<AboutGameView, string>(this, "openAbout", OpenGameAbout);
         WeakReferenceMessenger.Default.Register<CloseMessage>(this, CloseGame);
     }
 
-    private void CloseGame(object recipient, CloseMessage message)
+    private void Login(object recipient, User message)
     {
-        MainContentControl.Content = _viewFactory.CreateView<GamesStoreView>(new GameStoreViewModel());
+        _user = message;
+        _gamesStoreView =
+            _viewFactory.CreateView<GamesStoreView>(new GameStoreViewModel(new DbUserGamesLibraryManager(), message));
+        MainContentControl.Content = _gamesStoreView;
     }
 
-    private void ShowViewModel(object recipient, AboutGameView message)
+
+    private void CloseGame(object recipient, CloseMessage message)
+    {
+        MainContentControl.Content = _gamesStoreView;
+    }
+
+    private void OpenGameAbout(object recipient, AboutGameView message)
     {
         MainContentControl.Content = message;
     }

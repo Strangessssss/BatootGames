@@ -1,13 +1,15 @@
-using GameModel = BatootGames.Models.GameModel;
+using BatootGames.Entities;
+using GameModel = BatootGames.Entities.GameModel;
 
 namespace BatootGames.Interfaces;
 
 public interface IUserGamesLibraryManager
 {
-    void Add(GameModel game);
-    void Rate(int id, GameModel game , float rating);
+    void AddOrRemove(int gameId, int userId);
+    void Add(int gameId, int userId);
     ICollection<GameModel> GetGames();
     GameModel? GetGameById(int id);
-    void Remove(int id);
-    void Remove(GameModel game);
+    void Remove(int gameId, int userId);
+    void AddComment(Comment comment);
+    IEnumerable<Comment> GetCommentsByGameId(int gameId);
 }

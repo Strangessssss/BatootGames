@@ -1,7 +1,8 @@
 using BatootGames.Data;
+using BatootGames.Entities;
 using BatootGames.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using GameModel = BatootGames.Models.GameModel;
+using GameModel = BatootGames.Entities.GameModel;
 
 namespace BatootGames.Services;
 
@@ -10,48 +11,45 @@ public class DbUserGamesLibraryManager: IUserGamesLibraryManager
 
     private ApplicationDbContext _applicationDbContext;
     
-    public DbUserGamesLibraryManager(ApplicationDbContext applicationDbContext)
+    public DbUserGamesLibraryManager()
     {
-        _applicationDbContext = applicationDbContext;
+        _applicationDbContext = DbContextProvider.Provide();
     }
     
-    public void Add(GameModel game)
+    public void AddOrRemove(int gameId, int userId)
     {
-        _applicationDbContext.Add(game);
+        var existingUserGame = _applicationDbContext.UserGames
+            .FirstOrDefault(ug => ug.GameId == gameId && ug.UserId == userId);
+
+        var newUserGame = new UserGame
+        {
+            GameId = gameId,
+            UserId = userId
+        };
+        if (existingUserGame == null)
+        {
+            _applicationDbContext.UserGames.Add(newUserGame);
+        }
+        else
+        {
+            _applicationDbContext.UserGames.Remove(existingUserGame);
+        }
+        
         _applicationDbContext.SaveChanges();
     }
 
-    public void Rate(int id, GameModel game , float rating)
+    public void Add(int gameId, int userId)
     {
-        var existingEntity = _applicationDbContext.Games.Find(id);
-        if (existingEntity != null)
+        var newUserGame = new UserGame
         {
-            _applicationDbContext.Entry(existingEntity).State = EntityState.Detached;
-        }
-
-        var gameCopy = new GameModel
-        {
-            Description = game.Description,
-            Developer = game.Developer,
-            Id = id,
-            Image = game.Image,
-            Name = game.Name,
-            Rating = rating,
-            ReleaseDate = game.ReleaseDate,
-            Saved = true
+            GameId = gameId,
+            UserId = userId
         };
-
-        Update(gameCopy);
+        _applicationDbContext.UserGames.Add(newUserGame);
     }
 
     public void Save()
     {
-        _applicationDbContext.SaveChanges();
-    }
-    
-    public void Update(GameModel gameModel)
-    {
-        _applicationDbContext.Update(gameModel);
         _applicationDbContext.SaveChanges();
     }
     
@@ -62,21 +60,59 @@ public class DbUserGamesLibraryManager: IUserGamesLibraryManager
 
     public GameModel? GetGameById(int id)
     {
-        return _applicationDbContext.Games.FirstOrDefault(a => a.Id == id);
+        return _applicationDbContext.Games.FirstOrDefault(a => a.GameId == id);
     }
-
-    public void Remove(int id)
+    
+    public ICollection<GameModel> GetGamesByUserId(int id)
     {
-        _applicationDbContext.Games.Remove(new()
-        {
-            Id = id
-        });
+        var user = _applicationDbContext.Users
+            .Include(u => u.UserGames) 
+            .ThenInclude(ug => ug.Game)
+            .FirstOrDefault(u => u.UserId == id);
 
+        if (user == null)
+        {
+            return new List<GameModel>();
+        }
+
+        var gameModels = user.UserGames
+            .Select(ug => new GameModel
+            {
+                GameId = ug.Game.GameId,
+                Name = ug.Game.Name,
+                Description = ug.Game.Description,
+                Image = ug.Game.Image,
+                ReleaseDate = ug.Game.ReleaseDate,
+                Developer = ug.Game.Developer
+            })
+            .ToList();
+
+        return gameModels;
+    }
+    
+    public void Remove(int gameId, int userId)
+    {
+        var newUserGame = new UserGame
+        {
+            GameId = gameId,
+            UserId = userId
+        };
+        
+        _applicationDbContext.UserGames.Remove(newUserGame);
+        _applicationDbContext.SaveChanges();
+    }
+    
+    public void AddComment(Comment comment)
+    {
+        _applicationDbContext.Comments.Add(comment);
         _applicationDbContext.SaveChanges();
     }
 
-    public void Remove(GameModel game)
+    public IEnumerable<Comment> GetCommentsByGameId(int gameId)
     {
-        Remove(game.Id);
+        return _applicationDbContext.Comments
+            .Include(c => c.User)
+            .Where(c => c.GameId == gameId)
+            .ToList();
     }
 }

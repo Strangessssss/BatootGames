@@ -1,5 +1,5 @@
 using System.Collections.ObjectModel;
-using BatootGames.Data;
+using BatootGames.Entities;
 using BatootGames.Interfaces;
 using BatootGames.Messages;
 using BatootGames.Services;
@@ -7,14 +7,15 @@ using BatootGames.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Extensions.Configuration;
-using GameModel = BatootGames.Models.GameModel;
+using GameModel = BatootGames.Entities.GameModel;
 
 namespace BatootGames.ViewModels;
 
 public partial class GameStoreViewModel: ObservableObject, ILibraryViewModel, IViewModel
 {
     private readonly DbUserGamesLibraryManager _dbUserGamesLibraryManager;
+
+    private readonly User _user;
 
     private readonly ViewFactory _viewFactory = new();
     
@@ -30,21 +31,25 @@ public partial class GameStoreViewModel: ObservableObject, ILibraryViewModel, IV
 
     [ObservableProperty] private string? _searchRequest;
     
-    public GameStoreViewModel()
+    public GameStoreViewModel(DbUserGamesLibraryManager dbUserGamesLibraryManager, User user)
     {
-        var configurationBuilder = new ConfigurationBuilder();
-        configurationBuilder.AddJsonFile("config.json");
-
-        var config = configurationBuilder.Build();
-        var dbContext = new ApplicationDbContext(config);
-        dbContext.Database.EnsureCreated();
-        _dbUserGamesLibraryManager = new DbUserGamesLibraryManager(dbContext);
+        _dbUserGamesLibraryManager = dbUserGamesLibraryManager;
+        _user = user;
         GetAll();
         ShowAll();
         
-        WeakReferenceMessenger.Default.Register<GameIdMessage>(this, ShowGamePage);
-        WeakReferenceMessenger.Default.Register<RateMessage>(this, Rate);
+        WeakReferenceMessenger.Default.Register<GameIdMessage, string>(this, "openAbout", ShowGamePage);
+        WeakReferenceMessenger.Default.Register<GameIdMessage, string>(this, "addGame", AddGame);
         WeakReferenceMessenger.Default.Register<SaveDeleted>(this, Save );
+    }
+
+    private void AddGame(object recipient, GameIdMessage message)
+    {
+        _dbUserGamesLibraryManager.AddOrRemove(message.Id, _user.UserId);
+        if (MyLib)
+            ShowSavedGames();
+        else
+            ShowAll();
     }
 
     private void Save(object recipient, SaveDeleted message)
@@ -53,25 +58,14 @@ public partial class GameStoreViewModel: ObservableObject, ILibraryViewModel, IV
         ChoosePage();
     }
 
-    private void Rate(object recipient, RateMessage message)
-    {
-        var receivedGame = _dbUserGamesLibraryManager.GetGameById(message.GameId);
-        
-        if (receivedGame == null)
-            return;
-        
-        _dbUserGamesLibraryManager.Rate(receivedGame.Id, receivedGame, message.Rating);
-        ChoosePage();
-    }
-
     private void ShowGamePage(object recipient, GameIdMessage message)
     {
         var game = _dbUserGamesLibraryManager.GetGameById(message.Id);
         if (game != null)
         {
-            var aboutGameViewModel = new AboutGameViewModel(game);
+            var aboutGameViewModel = new AboutGameViewModel(game, _user, new DbUserGamesLibraryManager());
             var view = _viewFactory.CreateView<AboutGameView>(aboutGameViewModel);
-            WeakReferenceMessenger.Default.Send(view);
+            WeakReferenceMessenger.Default.Send(view, "openAbout");
         }
     }
 
@@ -92,17 +86,13 @@ public partial class GameStoreViewModel: ObservableObject, ILibraryViewModel, IV
     {
         if (!MyLib)
         {
-            if (IsMyLibEmpty())
-                return;
-            MyLib = !MyLib;
-            MyLibText = "All games";
             ShowSavedGames();
+            MyLib = !MyLib;
         }
         else
         {
-            MyLibText = "MyLib";
-            MyLib = !MyLib;
             ShowAll();
+            MyLib = !MyLib;
         }
     }
     
@@ -139,14 +129,13 @@ public partial class GameStoreViewModel: ObservableObject, ILibraryViewModel, IV
 
     private void ShowSavedGames()
     {
-        ShownGames = new ObservableCollection<GameModel>();
-        MyLibText = "All games";
-        foreach (var game in AllGames)
+        ShownGames = [];
+        var savedGames = _dbUserGamesLibraryManager.GetGamesByUserId(_user.UserId);
+        foreach (var userGame in savedGames)
         {
-            if (game.Saved)
-            {
+            var game = _dbUserGamesLibraryManager.GetGameById(userGame.GameId);
+            if (game != null)
                 ShownGames.Add(game);
-            }   
         }
     }
 
@@ -156,16 +145,5 @@ public partial class GameStoreViewModel: ObservableObject, ILibraryViewModel, IV
             ShowSavedGames();
         else
             ShowAll();
-    }
-
-    private bool IsMyLibEmpty()
-    {
-        var count = 0;
-        foreach (var game in _dbUserGamesLibraryManager.GetGames())
-        {
-            if (game.Saved)
-                count++;
-        }
-        return count == 0;
     }
 }

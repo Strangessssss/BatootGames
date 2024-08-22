@@ -3,8 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:BatootGames.Views"
-             xmlns:viewModels="clr-namespace:BatootGames.ViewModels"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="850" Background="#1e173d">
     <Grid>
@@ -15,7 +13,23 @@
                 <TextBlock Text="{Binding Developer}" FontSize="15" Margin="20 5 0 0" Foreground="Azure" HorizontalAlignment="Stretch" TextWrapping="Wrap"/>
             </StackPanel>
             <TextBlock Text="{Binding Description}" Margin="0 30 0 0" Foreground="Azure" HorizontalAlignment="Stretch" TextWrapping="Wrap"/>
-            <TextBlock Text="{Binding ReleaseDate}" Margin="600 200 0 0" Foreground="Azure" HorizontalAlignment="Stretch" TextWrapping="Wrap"/>
+            <TextBlock Text="{Binding ReleaseDate}" Margin="600 50 0 0" Foreground="Azure" HorizontalAlignment="Stretch" TextWrapping="Wrap"/>
+        
+            <StackPanel Orientation="Horizontal">
+                <TextBox Text="{Binding NewCommentContent}" Width="400" Height="50" AcceptsReturn="True" Margin="0,10"/>
+                <Button Margin="10 0 0 11" Content="Add" VerticalAlignment="Bottom" Command="{Binding AddCommentCommand}" Width="50" Height="50"/>
+            </StackPanel>
+            
+            <ListView ItemsSource="{Binding Comments}" Background="Transparent" Height="100">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <TextBlock Text="{Binding Username}" TextWrapping="Wrap" Foreground="White"/>
+                            <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Foreground="White"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
         </StackPanel>
     </Grid>
 </UserControl>

@@ -6,9 +6,6 @@
         mc:Ignorable="d"
         xmlns:local="clr-namespace:BatootGames.ViewModels"
         Title="MainWindow" Height="450" Width="850" ResizeMode="NoResize" Background="#1e173d">
-    <Window.DataContext>
-        <local:GameStoreViewModel/>
-    </Window.DataContext>
     <Grid>
         <ContentControl x:Name="MainContentControl"/>
     </Grid>

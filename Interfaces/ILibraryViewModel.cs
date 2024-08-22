@@ -1,4 +1,4 @@
-using GameModel = BatootGames.Models.GameModel;
+using GameModel = BatootGames.Entities.GameModel;
 
 namespace BatootGames.Interfaces;
 
