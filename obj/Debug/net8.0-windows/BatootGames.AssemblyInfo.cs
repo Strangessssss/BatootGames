@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BatootGames")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+422c65859a0271e0fe97581d81cd3cd860cdfb93")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+830f8f1d34ef73e2b2d5f2c6759d8f93b2f3a6f1")]
 [assembly: System.Reflection.AssemblyProductAttribute("BatootGames")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BatootGames")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -203,3 +203,4 @@ C:\Users\tima\RiderProjects\BatootGames\BatootGames\bin\Debug\net8.0-windows\zh-
 C:\Users\tima\RiderProjects\BatootGames\BatootGames\bin\Debug\net8.0-windows\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 C:\Users\tima\RiderProjects\BatootGames\BatootGames\obj\Debug\net8.0-windows\Views\UserLoginingView.g.cs
 C:\Users\tima\RiderProjects\BatootGames\BatootGames\obj\Debug\net8.0-windows\Views\UserLoginingView.baml
+C:\Users\tima\RiderProjects\BatootGames\BatootGames\obj\Debug\net8.0-windows\BatootGames.sourcelink.json
